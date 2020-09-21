@@ -25,7 +25,7 @@ copyDirPromise = cg.copyDir('./testDir', './outDir');
 ## Append all paths with inDir and with outDir
 
 ```js 
-const cgConf = require('../')({inDir:'./inDir', outDir:'./outDir'});
+const cg = require('../')({inDir:'./inDir', outDir:'./outDir'});
 
 //Path to handlebars template: ./inDir/testDir/template.txt
 compilePromise = cg.compile('./testDir/template.txt', {name: 'jhon'}, './testDir/res.txt');
