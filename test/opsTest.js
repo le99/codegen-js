@@ -113,12 +113,28 @@ describe("copyDir conf", ()=>{
         return fs.writeFile('./testDir/dir1/t1.txt', 'hello');
       })
       .then(()=>{
-        return cg.copyDir('./dir1', './dir2')
+        return cgConf.copyDir('./dir1', './dir2')
       })
       .then(()=>{
         return fs.stat('./outDir/dir2/t1.txt');
       }).then(f =>{
         assert.isTrue(f.isFile(), true);
+      });
+  })
+  
+});
+
+describe("compile conf", ()=>{
+  it("same folder", ()=>{
+
+    return fs.writeFile('./testDir/template.txt', '{{name}}')
+      .then(()=>{
+        return cgConf.compile('./template.txt', {name: 'jhon'}, './testDir/res.txt' )
+      })
+      .then(()=>{
+        return fs.readFile('./outDir/testDir/res.txt');
+      }).then(f =>{
+        assert.isTrue(f == 'jhon')
       });
   })
   
