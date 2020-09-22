@@ -102,6 +102,18 @@ describe("copy conf", ()=>{
         assert.isTrue(f.isFile(), true);
       });
   })
+
+
+  it("same folder no outPath", ()=>{
+
+    return cgConf.copy('./f1.txt')
+      .then(()=>{
+        return fs.stat('./outDir/f1.txt');
+      }).then(f =>{
+        assert.isTrue(f.isFile(), true);
+      });
+  })
+  
 });
 
 
@@ -122,6 +134,22 @@ describe("copyDir conf", ()=>{
       });
   })
   
+  it("same folder no outPath", ()=>{
+
+    return fs.mkdir('./testDir/dir1')
+      .then(()=>{
+        return fs.writeFile('./testDir/dir1/t1.txt', 'hello');
+      })
+      .then(()=>{
+        return cgConf.copyDir('./dir1')
+      })
+      .then(()=>{
+        return fs.stat('./outDir/dir1/t1.txt');
+      }).then(f =>{
+        assert.isTrue(f.isFile(), true);
+      });
+  })
+  
 });
 
 describe("compile conf", ()=>{
@@ -136,6 +164,21 @@ describe("compile conf", ()=>{
       }).then(f =>{
         assert.isTrue(f == 'jhon')
       });
-  })
+  });
   
+  it("same folder no outPath", ()=>{
+
+    return fs.mkdir('./testDir/subDir').
+      then(()=>{
+        return fs.writeFile('./testDir/subDir/template.txt', '{{name}}')
+      })
+      .then(()=>{
+        return cgConf.compile('./subDir/template.txt', {name: 'jhon'} )
+      })
+      .then(()=>{
+        return fs.readFile('./outDir/subDir/template.txt');
+      }).then(f =>{
+        assert.isTrue(f == 'jhon')
+      });
+  });
 });
