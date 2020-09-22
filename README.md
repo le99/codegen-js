@@ -11,7 +11,7 @@ npm install codegen-js
 ## Use Basic
 
 ```js 
-const cg = require('../')();
+const cg = require('codegen-js')();
 //Path to handlebars template, data, output path
 compilePromise = cg.compile('./testDir/template.txt', {name: 'jhon'}, './testDir/res.txt');
 
@@ -25,7 +25,7 @@ copyDirPromise = cg.copyDir('./testDir', './outDir');
 ## Append all paths with inDir and with outDir
 
 ```js 
-const cg = require('../')({inDir:'./inDir', outDir:'./outDir'});
+const cg = require('codegen-js')({inDir:'./inDir', outDir:'./outDir'});
 
 //Path to handlebars template: ./inDir/testDir/template.txt
 compilePromise = cg.compile('./testDir/template.txt', {name: 'jhon'}, './testDir/res.txt');
@@ -37,7 +37,7 @@ compilePromise = cg.compile('./testDir/template.txt', {name: 'jhon'});
 ## Faster copyDir with linux
 
 ```js 
-const cg = require('../')({inDir:'./inDir', outDir:'./outDir', linux: true});
+const cg = require('codegen-js')({inDir:'./inDir', outDir:'./outDir', linux: true});
 
 //Path to handlebars template: ./inDir/testDir/template.txt
 compilePromise = cg.compile('./testDir/template.txt', {name: 'jhon'}, './testDir/res.txt');
