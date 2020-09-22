@@ -1,6 +1,7 @@
 const assert = require('chai').assert;
 const cg = require('../')();
 const cgConf = require('../')({inDir:'./testDir', outDir:'./outDir'});
+const cgConfLinux = require('../')({inDir:'./testDir', outDir:'./outDir', linux:true});
 const fs = require("fs").promises;
 
 beforeEach(()=>{
@@ -181,4 +182,40 @@ describe("compile conf", ()=>{
         assert.isTrue(f == 'jhon')
       });
   });
+});
+
+
+describe("copyDir linux", ()=>{
+  it("same folder", ()=>{
+
+    return fs.mkdir('./testDir/dir1')
+      .then(()=>{
+        return fs.writeFile('./testDir/dir1/t1.txt', 'hello');
+      })
+      .then(()=>{
+        return cgConfLinux.copyDir('./dir1', './dir2')
+      })
+      .then(()=>{
+        return fs.stat('./outDir/dir2/t1.txt');
+      }).then(f =>{
+        assert.isTrue(f.isFile(), true);
+      });
+  })
+  
+  it("same folder no outPath", ()=>{
+
+    return fs.mkdir('./testDir/dir1')
+      .then(()=>{
+        return fs.writeFile('./testDir/dir1/t1.txt', 'hello');
+      })
+      .then(()=>{
+        return cgConfLinux.copyDir('./dir1')
+      })
+      .then(()=>{
+        return fs.stat('./outDir/dir1/t1.txt');
+      }).then(f =>{
+        assert.isTrue(f.isFile(), true);
+      });
+  })
+  
 });

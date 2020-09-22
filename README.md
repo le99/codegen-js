@@ -33,3 +33,15 @@ compilePromise = cg.compile('./testDir/template.txt', {name: 'jhon'}, './testDir
 //Can omit the outputPath, will write to ./outDir/testDir/template.txt
 compilePromise = cg.compile('./testDir/template.txt', {name: 'jhon'});
 ```
+
+## Faster copyDir with linux
+
+```js 
+const cg = require('../')({inDir:'./inDir', outDir:'./outDir', linux: true});
+
+//Path to handlebars template: ./inDir/testDir/template.txt
+compilePromise = cg.compile('./testDir/template.txt', {name: 'jhon'}, './testDir/res.txt');
+
+//Can omit the outputPath, will write to ./outDir/testDir/template.txt
+compilePromise = cg.compile('./testDir/template.txt', {name: 'jhon'});
+```
