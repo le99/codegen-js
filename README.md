@@ -1,11 +1,11 @@
-# autogen-js
+# codegen-js
 Utility lib to generate code from handlebars templates
 
 https://handlebarsjs.com/guide/
 
 ## Install
 ```bash 
-npm install autogen-js
+npm install codegen-js
 ```
 
 ## Use Basic
