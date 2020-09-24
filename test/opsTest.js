@@ -80,7 +80,25 @@ describe("compile", ()=>{
         assert.isTrue(f == 'jhon')
       });
   })
+
+  it("preserves permissions", ()=>{
   
+    return fs.writeFile('./testDir/script.sh', '#!/bin/bash\necho {{name}}')
+      .then(()=>{
+        return fs.chmod('./testDir/script.sh', "755")
+      })
+      .then(()=>{
+        return cg.compile('./testDir/script.sh', {name: 'jhon'}, './testDir/script2.sh' )
+      })
+      .then(()=>{
+        return fs.stat('./testDir/script2.sh');
+      })
+      .then((s)=>{
+        assert.equal((s.mode & 0o7777).toString(8), "755");
+      });
+  
+  });
+
 });
 
 
