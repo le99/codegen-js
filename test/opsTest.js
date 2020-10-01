@@ -1,4 +1,5 @@
 const assert = require('chai').assert;
+const cgConstructor = require('../')
 const cg = require('../')();
 const cgConf = require('../')({inDir:'./testDir', outDir:'./outDir'});
 const cgConfLinux = require('../')({inDir:'./testDir', outDir:'./outDir', linux:true});
@@ -11,11 +12,42 @@ beforeEach(()=>{
     });
 });
 
-
 afterEach(()=>{
   return fs.rmdir('./testDir', {recursive: true})
   .then(()=>{
     return fs.rmdir('./outDir', {recursive: true})
+  });
+});
+
+describe("bad initialization", ()=>{
+  it("bad inDir", ()=>{
+    try{
+      cgConstructor({inDir: {}});
+      assert.fail();
+    }
+    catch(err){
+      assert.equal(err.message, "inDir must be a string")
+    }
+  });
+  
+  it("bad outDir", ()=>{
+    try{
+      cgConstructor({outDir: {}});
+      assert.fail();
+    }
+    catch(err){
+      assert.equal(err.message, "outDir must be a string")
+    }
+  });
+  
+  it("bad linux", ()=>{
+    try{
+      cgConstructor({linux: "something"});
+      assert.fail();
+    }
+    catch(err){
+      assert.equal(err.message, "linux must be a boolean")
+    }
   });
 });
 
@@ -97,6 +129,30 @@ describe("compile", ()=>{
         assert.equal((s.mode & 0o7777).toString(8), "755");
       });
   
+  });
+
+  it("bad inPath", ()=>{
+    return fs.writeFile('./testDir/template.txt', '{{name}}')
+      .then(()=>{
+        try{
+          return cg.compile({}, {name: 'jhon'}, './testDir/res.txt' )
+        }
+        catch(err){
+          assert.equal(err.message, "inPath must be a string")
+        }
+      });
+  });
+
+  it("bad outPath", ()=>{
+    return fs.writeFile('./testDir/template.txt', '{{name}}')
+      .then(()=>{
+        try{
+          return cg.compile('./testDir/template.txt', {name: 'jhon'}, {} )
+        }
+        catch(err){
+          assert.equal(err.message, "outPath must be a string")
+        }
+      });
   });
 
 });

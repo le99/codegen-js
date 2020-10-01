@@ -1,6 +1,6 @@
 {
   "name": "codegen-js",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Code generation library using handlebars",
   "main": "index.js",
   "scripts": {

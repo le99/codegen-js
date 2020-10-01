@@ -13,7 +13,7 @@
     "node": true,
     "es6": true
   },
-    "globals": {
+  "globals": {
     "describe": true,
     "before": true,
     "after": true,
