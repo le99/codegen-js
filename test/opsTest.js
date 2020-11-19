@@ -5,6 +5,10 @@ const cgConf = require('../')({inDir:'./testDir', outDir:'./outDir'});
 const cgConfLinux = require('../')({inDir:'./testDir', outDir:'./outDir', linux:true});
 const fs = require("fs").promises;
 
+cgConstructor.Handlebars.registerHelper('loud', function (aString) {
+  return aString.toUpperCase()
+});
+
 beforeEach(()=>{
   return fs.mkdir('./testDir', {recursive: true})
     .then(()=>{
@@ -292,4 +296,21 @@ describe("copyDir linux", ()=>{
       });
   })
   
+});
+
+describe("compile with helper", ()=>{
+
+  it("same folder", ()=>{
+
+    return fs.writeFile('./testDir/template.txt', '{{loud name}}')
+      .then(()=>{
+        return cg.compile('./testDir/template.txt', {name: 'jhon'}, './testDir/res.txt' )
+      })
+      .then(()=>{
+        return fs.readFile('./testDir/res.txt');
+      }).then(f =>{
+        assert.isTrue(f == 'JHON');
+      });
+  })
+
 });

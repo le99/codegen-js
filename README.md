@@ -34,6 +34,16 @@ compilePromise = cg.compile('./testDir/template.txt', {name: 'jhon'}, './testDir
 compilePromise = cg.compile('./testDir/template.txt', {name: 'jhon'});
 ```
 
+## Customize Handlebars
+```js
+const cg = require('codegen-js')
+
+cgConstructor.Handlebars.registerHelper('loud', function (aString) {
+  return aString.toUpperCase()
+})
+// https://handlebarsjs.com/guide/expressions.html#helpers
+```
+
 ## Faster copyDir with linux
 
 ```js 
