@@ -1,17 +1,20 @@
 const assert = require('chai').assert;
+
 const cgConstructor = require('../')
-const cg = require('../')();
-const cgConf = require('../')({inDir:'./testDir', outDir:'./outDir'});
-const cgConfLinux = require('../')({inDir:'./testDir', outDir:'./outDir', linux:true});
 const fs = require("fs").promises;
 
 cgConstructor.Handlebars.registerHelper('loud', function (aString) {
   return aString.toUpperCase()
 });
 
+let cg;
+let cgConfLinux;
+
 beforeEach(async ()=>{
+  cg = cgConstructor();
+  cgConfLinux = cgConstructor({linux:true});
   await fs.mkdir('./testDir', {recursive: true});
-  await  fs.writeFile('./testDir/f1.txt', 'hi');
+  await fs.writeFile('./testDir/f1.txt', 'hi');
 });
 
 afterEach(async ()=>{
@@ -20,26 +23,6 @@ afterEach(async ()=>{
 });
 
 describe("bad initialization", ()=>{
-  it("bad inDir", async ()=>{
-    try{
-      cgConstructor({inDir: {}});
-      assert.fail();
-    }
-    catch(err){
-      assert.equal(err.message, "inDir must be a string")
-    }
-  });
-  
-  it("bad outDir", async ()=>{
-    try{
-      cgConstructor({outDir: {}});
-      assert.fail();
-    }
-    catch(err){
-      assert.equal(err.message, "outDir must be a string")
-    }
-  });
-  
   it("bad linux", async ()=>{
     try{
       cgConstructor({linux: "something"});
@@ -71,7 +54,6 @@ describe("copy", ()=>{
     assert.isTrue(f.isFile(), true);
   })
 });
-
 
 describe("copyDir", ()=>{
   it("same folder", async ()=>{
@@ -128,24 +110,68 @@ describe("compile", ()=>{
 });
 
 
-describe("copy conf", ()=>{
-  it("same folder", async ()=>{
+describe("copy cd", ()=>{
+  it('no cd', async() => {
+    let c = cgConstructor();
+    await cg.copy('./testDir/f1.txt', './outDir/f1.txt');
+    let f = await fs.stat('./outDir/f1.txt');
+    assert.isTrue(f.isFile(), true);
+  });
 
-    await cgConf.copy('./f1.txt', './f1.txt');
+  it('cd with no inDir', async() => {
+    let c = cgConstructor();
+    cg.cd(undefined, './outDir');
+    await cg.copy('./testDir/f1.txt', './f1.txt');
+    let f = await fs.stat('./outDir/f1.txt');
+    assert.isTrue(f.isFile(), true);
+  });
+  
+  it('cd with no outDir', async() => {
+    let c = cgConstructor();
+    cg.cd('./testDir');
+    await cg.copy('./f1.txt', './outDir/f1.txt');
+    let f = await fs.stat('./outDir/f1.txt');
+    assert.isTrue(f.isFile(), true);
+  });
+
+  it('cd bad inDir', async() => {
+    let c = cgConstructor();
+    try {
+      cg.cd(null, './test');
+    }
+    catch(e){
+      assert.equal(e.message, 'inDir must be a string');
+    }
+  });
+
+  it('cd bad outDir', async() => {
+    let c = cgConstructor();
+    try {
+      cg.cd('./test', null);
+    }
+    catch(e){
+      assert.equal(e.message, 'outDir must be a string');
+    }
+  });
+
+  it("same folder", async ()=>{
+    cg.cd('./testDir', './outDir');
+    await cg.copy('./f1.txt', './f1.txt');
     let f = await fs.stat('./outDir/f1.txt');
     assert.isTrue(f.isFile(), true);
   })
   
   it("sub folder", async ()=>{
-    await cgConf.copy('./f1.txt', './sub/f2.txt');
+    cg.cd('./testDir', './outDir');
+    await cg.copy('./f1.txt', './sub/f2.txt');
     let f = await fs.stat('./outDir/sub/f2.txt'); 
     assert.isTrue(f.isFile(), true);
   })
 
 
   it("same folder no outPath", async ()=>{
-
-    await cgConf.copy('./f1.txt');
+    cg.cd('./testDir', './outDir');
+    await cg.copy('./f1.txt');
     let f = await fs.stat('./outDir/f1.txt');
     assert.isTrue(f.isFile(), true);
   })
@@ -153,12 +179,13 @@ describe("copy conf", ()=>{
 });
 
 
-describe("copyDir conf", ()=>{
+describe("copyDir cd", ()=>{
   it("same folder", async ()=>{
 
     await fs.mkdir('./testDir/dir1');
     await fs.writeFile('./testDir/dir1/t1.txt', 'hello');
-    await cgConf.copyDir('./dir1', './dir2');
+    cg.cd('./testDir', './outDir');
+    await cg.copyDir('./dir1', './dir2');
     let f = await fs.stat('./outDir/dir2/t1.txt');
     assert.isTrue(f.isFile(), true);
   });
@@ -167,18 +194,20 @@ describe("copyDir conf", ()=>{
 
     await fs.mkdir('./testDir/dir1')
     await fs.writeFile('./testDir/dir1/t1.txt', 'hello');
-    await cgConf.copyDir('./dir1');
+    cg.cd('./testDir', './outDir');
+    await cg.copyDir('./dir1');
     let f = await fs.stat('./outDir/dir1/t1.txt');
     assert.isTrue(f.isFile(), true);
   })
   
 });
 
-describe("compile conf", ()=>{
+describe("compile cd", ()=>{
   it("same folder", async ()=>{
 
     await fs.writeFile('./testDir/template.txt', '{{name}}');
-    await cgConf.compile('./template.txt', {name: 'jhon'}, './testDir/res.txt' );
+    cg.cd('./testDir', './outDir');
+    await cg.compile('./template.txt', {name: 'jhon'}, './testDir/res.txt' );
     let f = await fs.readFile('./outDir/testDir/res.txt');
     assert.isTrue(f == 'jhon');
   });
@@ -187,7 +216,8 @@ describe("compile conf", ()=>{
 
     await fs.mkdir('./testDir/subDir');
     await fs.writeFile('./testDir/subDir/template.txt', '{{name}}');
-    await cgConf.compile('./subDir/template.txt', {name: 'jhon'} );
+    cg.cd('./testDir', './outDir');
+    await cg.compile('./subDir/template.txt', {name: 'jhon'} );
     let f = await fs.readFile('./outDir/subDir/template.txt');
     assert.isTrue(f == 'jhon');
   });
@@ -199,6 +229,7 @@ describe("copyDir linux", ()=>{
 
     await fs.mkdir('./testDir/dir1');
     await fs.writeFile('./testDir/dir1/t1.txt', 'hello');
+    cgConfLinux.cd('./testDir', './outDir');
     await cgConfLinux.copyDir('./dir1', './dir2');
     let f = await fs.stat('./outDir/dir2/t1.txt');
     assert.isTrue(f.isFile(), true);
@@ -208,6 +239,7 @@ describe("copyDir linux", ()=>{
 
     await fs.mkdir('./testDir/dir1');
     await fs.writeFile('./testDir/dir1/t1.txt', 'hello');
+    cgConfLinux.cd('./testDir', './outDir');
     await cgConfLinux.copyDir('./dir1');
     let f = await fs.stat('./outDir/dir1/t1.txt');
     assert.isTrue(f.isFile(), true);
